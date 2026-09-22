@@ -1,0 +1,194 @@
+{% extends 'base.html' %}
+
+{% block title %}AI Resume Analyzer - Maximize Your ATS Score & Get Hired{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-gradient text-center">
+    <div class="container position-relative">
+        <div class="row justify-content-center">
+            <div class="col-lg-9">
+                <div class="hero-badge mb-3">
+                    <i class="bi bi-cpu-fill"></i> Powered by NLP & Scikit-learn Machine Learning
+                </div>
+                <h1 class="display-4 fw-extrabold mb-3 text-dark">
+                    Optimize Your Resume for <span class="text-primary">ATS Algorithms</span> & Land Interviews
+                </h1>
+                <p class="lead text-muted mb-4 px-md-4">
+                    Instantly extract skills, calculate your ATS compatibility score against target job roles, pinpoint critical skill gaps, and receive AI-driven recommendations to make your resume stand out to top recruiters.
+                </p>
+
+                <div class="d-flex flex-wrap justify-content-center gap-3 mb-5">
+                    <a href="{% url 'upload_resume' %}" class="btn btn-primary-custom btn-lg px-4 py-3 fs-6">
+                        <i class="bi bi-cloud-arrow-up-fill me-2"></i> Upload Resume for Instant Analysis
+                    </a>
+                    <a href="#how-it-works" class="btn btn-outline-custom btn-lg px-4 py-3 fs-6">
+                        <i class="bi bi-play-circle me-2"></i> How It Works
+                    </a>
+                </div>
+
+                <!-- Live Metrics Counter -->
+                <div class="row g-3 justify-content-center">
+                    <div class="col-6 col-md-3">
+                        <div class="p-3 bg-white rounded-4 border shadow-sm">
+                            <h3 class="fw-bold text-primary mb-0">20+</h3>
+                            <span class="small text-muted">Job Role Profiles</span>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="p-3 bg-white rounded-4 border shadow-sm">
+                            <h3 class="fw-bold text-success mb-0">250+</h3>
+                            <span class="small text-muted">Tracked Tech Skills</span>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="p-3 bg-white rounded-4 border shadow-sm">
+                            <h3 class="fw-bold text-dark mb-0">6-Factor</h3>
+                            <span class="small text-muted">ATS Scoring Engine</span>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="p-3 bg-white rounded-4 border shadow-sm">
+                            <h3 class="fw-bold text-info mb-0">100%</h3>
+                            <span class="small text-muted">Free & Secure</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Core Features Grid -->
+<section class="py-5 bg-white border-bottom">
+    <div class="container py-4">
+        <div class="text-center max-w-700 mx-auto mb-5">
+            <h6 class="text-primary fw-bold text-uppercase small">Intelligent Features</h6>
+            <h2 class="fw-bold">Everything You Need to Beat the ATS</h2>
+            <p class="text-muted">Designed specifically for students, graduates, and professionals aiming for career advancement.</p>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card">
+                    <div class="icon-box primary">
+                        <i class="bi bi-file-earmark-code"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2">Automated NLP Extraction</h5>
+                    <p class="text-muted small">
+                        Accepts both PDF and DOCX formats. Parses contact info, education, experience, degrees, certifications, and technical skills using natural language processing.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card">
+                    <div class="icon-box emerald">
+                        <i class="bi bi-speedometer2"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2">Predictive ATS Scoring</h5>
+                    <p class="text-muted small">
+                        Calculates an accurate multi-factor ATS compatibility score (0-100%) leveraging TF-IDF vector similarity, keyword density, and action-verb metrics.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card">
+                    <div class="icon-box amber">
+                        <i class="bi bi-diagram-3"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2">Target Role & Skill Gap Analysis</h5>
+                    <p class="text-muted small">
+                        Compare your resume against preset target roles or paste any custom Job Description to see matched, missing, and recommended skills in color-coded badges.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card">
+                    <div class="icon-box cyan">
+                        <i class="bi bi-lightbulb"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2">AI-Driven Actionable Tips</h5>
+                    <p class="text-muted small">
+                        Provides concrete phrasing suggestions using the Google XYZ formula ("Accomplished X, measured by Y, by doing Z") to maximize quantified impact.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card">
+                    <div class="icon-box primary">
+                        <i class="bi bi-file-earmark-pdf"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2">Downloadable PDF Reports</h5>
+                    <p class="text-muted small">
+                        Export your full visual audit report with subscore radars, category breakdowns, and personalized enhancement checklists for easy reference.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-4">
+                <div class="feature-card">
+                    <div class="icon-box emerald">
+                        <i class="bi bi-arrow-left-right"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2">Version Comparison</h5>
+                    <p class="text-muted small">
+                        Compare successive iterations of your resume side-by-side to track how edits and new skills systematically improve your ATS ranking.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works Section -->
+<section id="how-it-works" class="py-5 bg-light">
+    <div class="container py-4">
+        <div class="text-center max-w-700 mx-auto mb-5">
+            <h6 class="text-primary fw-bold text-uppercase small">Simple 4-Step Process</h6>
+            <h2 class="fw-bold">How ResumeAI Works</h2>
+            <p class="text-muted">Transform your resume from overlooked to shortlisted in under 30 seconds.</p>
+        </div>
+
+        <div class="row g-4 text-center">
+            <div class="col-md-3">
+                <div class="p-4 bg-white rounded-4 border h-100 shadow-sm">
+                    <span class="badge rounded-circle bg-primary text-white p-3 fs-5 mb-3">1</span>
+                    <h5 class="fw-bold">Upload Resume</h5>
+                    <p class="text-muted small mb-0">Upload your existing resume in PDF or DOCX format.</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="p-4 bg-white rounded-4 border h-100 shadow-sm">
+                    <span class="badge rounded-circle bg-primary text-white p-3 fs-5 mb-3">2</span>
+                    <h5 class="fw-bold">Select Target Role</h5>
+                    <p class="text-muted small mb-0">Pick your desired tech job role or paste a custom Job Description.</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="p-4 bg-white rounded-4 border h-100 shadow-sm">
+                    <span class="badge rounded-circle bg-primary text-white p-3 fs-5 mb-3">3</span>
+                    <h5 class="fw-bold">AI & NLP Scan</h5>
+                    <p class="text-muted small mb-0">Algorithms parse text, calculate ATS match, and detect skill gaps.</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="p-4 bg-white rounded-4 border h-100 shadow-sm">
+                    <span class="badge rounded-circle bg-primary text-white p-3 fs-5 mb-3">4</span>
+                    <h5 class="fw-bold">Apply Suggestions</h5>
+                    <p class="text-muted small mb-0">Incorporate recommended keywords & download the analysis report.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-5">
+            <a href="{% url 'upload_resume' %}" class="btn btn-primary-custom btn-lg px-4 py-3">
+                <i class="bi bi-cloud-arrow-up me-2"></i> Start Free Resume Evaluation
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}

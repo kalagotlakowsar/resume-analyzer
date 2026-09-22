@@ -1,0 +1,416 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Analysis Report - {{ report.resume.file_name }} - AI Resume Analyzer{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Top Action Bar -->
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1 small">
+                    <li class="breadcrumb-item"><a href="{% url 'index' %}" class="text-decoration-none">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'resume_history' %}" class="text-decoration-none">Resumes</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Report #{{ report.id }}</li>
+                </ol>
+            </nav>
+            <h3 class="fw-bold mb-0">ATS Audit & Skill Gap Report</h3>
+        </div>
+
+        <div class="d-flex gap-2">
+            <a href="{% url 'download_report_pdf' report.id %}" target="_blank" class="btn btn-outline-custom">
+                <i class="bi bi-printer me-1"></i> Print / Export PDF
+            </a>
+            <a href="{% url 'upload_resume' %}" class="btn btn-primary-custom">
+                <i class="bi bi-arrow-repeat me-1"></i> Re-Analyze / New Upload
+            </a>
+        </div>
+    </div>
+
+    <!-- Hero Score & Overview Card -->
+    <div class="report-header-card mb-4">
+        <div class="row align-items-center g-4">
+            <!-- Left: ATS Score Gauge -->
+            <div class="col-lg-4 text-center text-lg-start d-flex flex-column flex-sm-row align-items-center gap-4">
+                <div class="score-circle-container">
+                    <svg class="score-circle-svg" viewBox="0 0 160 160">
+                        <circle class="score-circle-bg" cx="80" cy="80" r="70"></circle>
+                        <circle class="score-circle-progress" cx="80" cy="80" r="70"></circle>
+                    </svg>
+                    <div class="score-circle-text">
+                        <div class="score-circle-val">{{ report.ats_score }}%</div>
+                        <div class="score-circle-label">ATS Score</div>
+                    </div>
+                </div>
+
+                <div>
+                    <span class="badge {{ report.rating_badge_class }} px-3 py-2 rounded-pill mb-2">
+                        {{ report.rating_label }}
+                    </span>
+                    <h5 class="fw-bold text-white mb-1">Compatibility Rating</h5>
+                    <p class="small text-white-50 mb-0">Calculated across 6 ATS screening criteria</p>
+                </div>
+            </div>
+
+            <!-- Right: Candidate & Target Summary -->
+            <div class="col-lg-8 border-lg-start ps-lg-4">
+                <div class="row g-3">
+                    <div class="col-sm-6">
+                        <span class="text-white-50 small text-uppercase">Target Job Profile</span>
+                        <h5 class="fw-bold text-white mb-0">{{ report.target_title }}</h5>
+                    </div>
+                    <div class="col-sm-6">
+                        <span class="text-white-50 small text-uppercase">Candidate Name (Detected)</span>
+                        <h5 class="fw-bold text-white mb-0">{{ contacts.name|default:report.resume.user.username }}</h5>
+                    </div>
+                    <div class="col-sm-6">
+                        <span class="text-white-50 small text-uppercase">File Scanned</span>
+                        <div class="text-white small">
+                            <i class="bi bi-file-earmark-text me-1"></i> {{ report.resume.file_name }} ({{ report.resume.file_size_kb }} KB)
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <span class="text-white-50 small text-uppercase">Scan Timestamp</span>
+                        <div class="text-white small">
+                            <i class="bi bi-calendar3 me-1"></i> {{ report.created_at|date:"M d, Y - H:i" }} UTC
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats Cards Row -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white text-center">
+                <span class="text-muted small fw-semibold">Matched Skills</span>
+                <h3 class="fw-bold text-success mb-0 mt-1">{{ matched_skills|length }}</h3>
+                <span class="small text-muted">Found in Resume</span>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white text-center">
+                <span class="text-muted small fw-semibold">Missing Skills</span>
+                <h3 class="fw-bold text-danger mb-0 mt-1">{{ missing_skills|length }}</h3>
+                <span class="small text-muted">Action Required</span>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white text-center">
+                <span class="text-muted small fw-semibold">Action Verbs Count</span>
+                <h3 class="fw-bold text-primary mb-0 mt-1">{{ impact.action_verbs_count|default:0 }}</h3>
+                <span class="small text-muted">Impact Keywords</span>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white text-center">
+                <span class="text-muted small fw-semibold">Page & Word Count</span>
+                <h3 class="fw-bold text-dark mb-0 mt-1">{{ report.resume.page_count }} <span class="fs-6 text-muted">pg</span></h3>
+                <span class="small text-muted">{{ report.resume.word_count }} words total</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Visual Analytics: Radar & Doughnut Charts -->
+    <div class="row g-4 mb-4">
+        <!-- Subscores Breakdown Radar -->
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <h5 class="fw-bold mb-0"><i class="bi bi-radar text-primary me-2"></i>ATS Criteria Sub-Scores</h5>
+                    <span class="badge bg-light text-muted border">Scale 0 - 100</span>
+                </div>
+                <div style="height: 300px; position: relative;">
+                    <canvas id="subscoresRadarChart"></canvas>
+                </div>
+                
+                <div class="row g-2 mt-3 pt-3 border-top small">
+                    <div class="col-4">
+                        <span class="text-muted d-block">Keywords:</span>
+                        <strong class="text-dark">{{ report.keyword_match_score }}%</strong>
+                    </div>
+                    <div class="col-4">
+                        <span class="text-muted d-block">Skills Match:</span>
+                        <strong class="text-dark">{{ report.skills_score }}%</strong>
+                    </div>
+                    <div class="col-4">
+                        <span class="text-muted d-block">Experience:</span>
+                        <strong class="text-dark">{{ report.experience_score }}%</strong>
+                    </div>
+                    <div class="col-4">
+                        <span class="text-muted d-block">Education:</span>
+                        <strong class="text-dark">{{ report.education_score }}%</strong>
+                    </div>
+                    <div class="col-4">
+                        <span class="text-muted d-block">Completeness:</span>
+                        <strong class="text-dark">{{ report.completeness_score }}%</strong>
+                    </div>
+                    <div class="col-4">
+                        <span class="text-muted d-block">Formatting:</span>
+                        <strong class="text-dark">{{ report.formatting_score }}%</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Skills Distribution Doughnut -->
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <h5 class="fw-bold mb-0"><i class="bi bi-pie-chart text-success me-2"></i>Skill Gap Breakdown</h5>
+                    <span class="badge bg-light text-muted border">Target Role Match</span>
+                </div>
+                <div style="height: 300px; position: relative;">
+                    <canvas id="skillsDistChart"></canvas>
+                </div>
+                <p class="text-center text-muted small mt-2 mb-0">
+                    Your resume matches <strong class="text-success">{{ matched_skills|length }}</strong> target skills, is missing <strong class="text-danger">{{ missing_skills|length }}</strong> core skills, with <strong class="text-info">{{ recommended_skills|length }}</strong> recommended additions.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Skill Gap Detailed Badges Section -->
+    <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+        <h5 class="fw-bold mb-3"><i class="bi bi-tags text-primary me-2"></i>Skill Gap Taxonomy & Badges</h5>
+
+        <ul class="nav nav-tabs mb-4" id="skillTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active fw-semibold text-success" id="tab-matched" data-bs-toggle="tab" data-bs-target="#content-matched" type="button" role="tab">
+                    <i class="bi bi-check-circle-fill me-1"></i> Matched Skills ({{ matched_skills|length }})
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link fw-semibold text-danger" id="tab-missing" data-bs-toggle="tab" data-bs-target="#content-missing" type="button" role="tab">
+                    <i class="bi bi-x-circle-fill me-1"></i> Missing Critical Skills ({{ missing_skills|length }})
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link fw-semibold text-primary" id="tab-recommended" data-bs-toggle="tab" data-bs-target="#content-recommended" type="button" role="tab">
+                    <i class="bi bi-stars me-1"></i> Recommended Boosts ({{ recommended_skills|length }})
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link fw-semibold text-dark" id="tab-all-extracted" data-bs-toggle="tab" data-bs-target="#content-all" type="button" role="tab">
+                    <i class="bi bi-list-check me-1"></i> All Detected Skills ({{ parsed.skills|length }})
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="skillTabsContent">
+            <!-- Matched Skills -->
+            <div class="tab-pane fade show active" id="content-matched" role="tabpanel">
+                {% if matched_skills %}
+                    <div class="d-flex flex-wrap gap-1">
+                        {% for sk in matched_skills %}
+                            <span class="skill-pill skill-matched">
+                                <i class="bi bi-check-lg"></i> {{ sk }}
+                            </span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted small mb-0">No matching skills detected for this target role.</p>
+                {% endif %}
+            </div>
+
+            <!-- Missing Skills -->
+            <div class="tab-pane fade" id="content-missing" role="tabpanel">
+                {% if missing_skills %}
+                    <div class="alert alert-danger bg-danger-subtle border-0 py-2 small mb-3">
+                        <i class="bi bi-exclamation-triangle-fill me-1"></i> These critical keywords are present in the target job requirements but missing from your resume text.
+                    </div>
+                    <div class="d-flex flex-wrap gap-1">
+                        {% for sk in missing_skills %}
+                            <span class="skill-pill skill-missing">
+                                <i class="bi bi-x-lg"></i> {{ sk }}
+                            </span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-success small mb-0"><i class="bi bi-check2-all me-1"></i> Great job! You have all the core required skills matched.</p>
+                {% endif %}
+            </div>
+
+            <!-- Recommended Skills -->
+            <div class="tab-pane fade" id="content-recommended" role="tabpanel">
+                {% if recommended_skills %}
+                    <div class="alert alert-info bg-info-subtle border-0 py-2 small mb-3">
+                        <i class="bi bi-info-circle-fill me-1"></i> Good-to-have or trending skills that will give you a competitive edge over other candidates.
+                    </div>
+                    <div class="d-flex flex-wrap gap-1">
+                        {% for sk in recommended_skills %}
+                            <span class="skill-pill skill-recommended">
+                                <i class="bi bi-plus-lg"></i> {{ sk }}
+                            </span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted small mb-0">No additional recommended skills for this profile.</p>
+                {% endif %}
+            </div>
+
+            <!-- All Extracted Categorized Skills -->
+            <div class="tab-pane fade" id="content-all" role="tabpanel">
+                {% if report.category_breakdown %}
+                    <div class="row g-3">
+                        {% for cat, skills_list in report.category_breakdown.items %}
+                            <div class="col-md-6">
+                                <div class="p-3 bg-light rounded-3 border">
+                                    <h6 class="fw-bold text-primary mb-2">{{ cat }}</h6>
+                                    <div class="d-flex flex-wrap gap-1">
+                                        {% for s in skills_list %}
+                                            <span class="skill-pill skill-neutral">{{ s }}</span>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="d-flex flex-wrap gap-1">
+                        {% for sk in parsed.skills %}
+                            <span class="skill-pill skill-neutral">{{ sk }}</span>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Personalized Recommendations -->
+    <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <div>
+                <h5 class="fw-bold mb-1"><i class="bi bi-lightbulb-fill text-warning me-2"></i>Personalized AI Recommendations</h5>
+                <p class="text-muted small mb-0">Actionable enhancements sorted by impact on your ATS rank</p>
+            </div>
+            <span class="badge bg-primary text-white rounded-pill px-3 py-2">{{ report.ai_recommendations|length }} Action Items</span>
+        </div>
+
+        {% if report.ai_recommendations %}
+            {% for rec in report.ai_recommendations %}
+                <div class="rec-card {% if rec.priority == 'High' %}high-priority{% elif rec.priority == 'Medium' %}medium-priority{% else %}low-priority{% endif %}">
+                    <div class="d-flex align-items-start justify-content-between gap-3 mb-2">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi {{ rec.icon }} fs-5 {% if rec.priority == 'High' %}text-danger{% elif rec.priority == 'Medium' %}text-warning{% else %}text-primary{% endif %}"></i>
+                            <h6 class="fw-bold mb-0 text-dark">{{ rec.title }}</h6>
+                        </div>
+                        <span class="badge {{ rec.badge_class }} rounded-pill">{{ rec.priority }} Priority</span>
+                    </div>
+                    <p class="text-muted small mb-2">{{ rec.description }}</p>
+                    <div class="p-2 rounded bg-light border small text-dark">
+                        <strong><i class="bi bi-arrow-right-short text-primary"></i> Action Step:</strong> {{ rec.action }}
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p class="text-success small mb-0">Your resume already satisfies our top optimization benchmarks!</p>
+        {% endif %}
+    </div>
+
+    <!-- Section Health Check Table -->
+    <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+        <h5 class="fw-bold mb-3"><i class="bi bi-check2-square text-primary me-2"></i>Resume Structure & Section Health Check</h5>
+        
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Section</th>
+                        <th>Status</th>
+                        <th>Detected Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Contact Information</strong></td>
+                        <td>
+                            {% if contacts.email and contacts.phone %}
+                                <span class="badge bg-success"><i class="bi bi-check-circle"></i> Complete</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark"><i class="bi bi-exclamation-circle"></i> Partial</span>
+                            {% endif %}
+                        </td>
+                        <td class="small text-muted">
+                            Email: {{ contacts.email|default:'Missing' }} &bull; 
+                            Phone: {{ contacts.phone|default:'Missing' }} &bull; 
+                            LinkedIn: {{ contacts.linkedin|default:'Missing' }} &bull; 
+                            GitHub: {{ contacts.github|default:'Missing' }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Professional Summary</strong></td>
+                        <td>
+                            {% if parsed.flags.has_summary %}
+                                <span class="badge bg-success"><i class="bi bi-check-circle"></i> Detected</span>
+                            {% else %}
+                                <span class="badge bg-danger"><i class="bi bi-x-circle"></i> Missing</span>
+                            {% endif %}
+                        </td>
+                        <td class="small text-muted">
+                            {% if parsed.flags.has_summary %}Present and formatted.{% else %}No executive summary header identified.{% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Work Experience</strong></td>
+                        <td>
+                            {% if parsed.flags.has_experience %}
+                                <span class="badge bg-success"><i class="bi bi-check-circle"></i> Detected</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark"><i class="bi bi-info-circle"></i> Needs Detail</span>
+                            {% endif %}
+                        </td>
+                        <td class="small text-muted">
+                            Action verbs: {{ impact.action_verbs_count }} detected &bull; Quantified impact metrics: {{ impact.metrics_count }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Education & Degrees</strong></td>
+                        <td>
+                            {% if parsed.flags.has_education %}
+                                <span class="badge bg-success"><i class="bi bi-check-circle"></i> Detected</span>
+                            {% else %}
+                                <span class="badge bg-danger"><i class="bi bi-x-circle"></i> Missing</span>
+                            {% endif %}
+                        </td>
+                        <td class="small text-muted">
+                            Degrees: {{ education.degrees|join:", "|default:"General degree" }} &bull; 
+                            Year: {{ education.years|join:", "|default:"N/A" }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Projects Section</strong></td>
+                        <td>
+                            {% if parsed.flags.has_projects %}
+                                <span class="badge bg-success"><i class="bi bi-check-circle"></i> Detected</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark"><i class="bi bi-info-circle"></i> Optional</span>
+                            {% endif %}
+                        </td>
+                        <td class="small text-muted">
+                            {% if parsed.flags.has_projects %}Key technical projects identified.{% else %}Consider adding 2-3 prominent GitHub projects.{% endif %}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const subscoresData = {{ chart_subscores_json|safe }};
+        const skillsDistData = {{ chart_skills_dist_json|safe }};
+        const atsScore = {{ report.ats_score }};
+        
+        if (typeof initReportVisuals === 'function') {
+            initReportVisuals(subscoresData, skillsDistData, atsScore);
+        }
+    });
+</script>
+<script src="{% static 'js/report_charts.js' %}"></script>
+{% endblock %}

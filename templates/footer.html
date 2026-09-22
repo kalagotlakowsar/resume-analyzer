@@ -1,0 +1,54 @@
+<footer>
+    <div class="container">
+        <div class="row g-4 mb-4">
+            <div class="col-lg-4 col-md-6">
+                <h5 class="text-white brand-font mb-3 d-flex align-items-center gap-2">
+                    <span class="p-1 rounded bg-primary text-white d-inline-flex"><i class="bi bi-file-earmark-check"></i></span>
+                    Resume<span class="text-primary">AI</span>
+                </h5>
+                <p class="small text-muted mb-3">
+                    Intelligent AI-powered resume evaluation, ATS score prediction, and skill gap identification platform empowering job seekers and students to land dream careers.
+                </p>
+                <div class="d-flex gap-3 fs-5">
+                    <a href="#" class="text-muted"><i class="bi bi-github"></i></a>
+                    <a href="#" class="text-muted"><i class="bi bi-linkedin"></i></a>
+                    <a href="#" class="text-muted"><i class="bi bi-twitter-x"></i></a>
+                </div>
+            </div>
+
+            <div class="col-lg-2 col-md-6 col-6">
+                <h6 class="text-white fw-bold mb-3">Features</h6>
+                <ul class="list-unstyled small d-flex flex-column gap-2">
+                    <li><a href="{% url 'upload_resume' %}">ATS Score Engine</a></li>
+                    <li><a href="{% url 'upload_resume' %}">Skill Gap Analysis</a></li>
+                    <li><a href="{% url 'upload_resume' %}">AI Recommendations</a></li>
+                    <li><a href="{% url 'compare_resumes' %}">Score Comparison</a></li>
+                </ul>
+            </div>
+
+            <div class="col-lg-3 col-md-6 col-6">
+                <h6 class="text-white fw-bold mb-3">Supported Roles</h6>
+                <ul class="list-unstyled small d-flex flex-column gap-2">
+                    <li><a href="#">Full Stack Developer</a></li>
+                    <li><a href="#">Data Scientist & ML</a></li>
+                    <li><a href="#">Cloud & DevOps Engineer</a></li>
+                    <li><a href="#">Backend Python Engineer</a></li>
+                </ul>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <h6 class="text-white fw-bold mb-3">NLP & AI Engine</h6>
+                <p class="small text-muted">
+                    Built with Python, Django, SpaCy, NLTK, Scikit-learn, and TF-IDF similarity algorithms.
+                </p>
+                <div class="p-2 rounded bg-dark border border-secondary border-opacity-25 small text-muted">
+                    <i class="bi bi-shield-check text-success me-1"></i> Privacy guaranteed: Resumes are encrypted and secure.
+                </div>
+            </div>
+        </div>
+
+        <div class="border-top border-secondary border-opacity-25 pt-4 text-center small text-muted">
+            <p class="mb-0">© 2026 AI Resume Analyzer Platform. All rights reserved.</p>
+        </div>
+    </div>
+</footer>

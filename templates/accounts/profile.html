@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+
+{% block title %}User Profile - AI Resume Analyzer{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row g-4">
+        <!-- Profile Sidebar Summary -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 p-4 text-center bg-white">
+                <div class="mb-3">
+                    <span class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center shadow" style="width:90px;height:90px;font-size:2.2rem;font-weight:700;">
+                        {{ user.first_name|default:user.username|slice:":1"|upper }}
+                    </span>
+                </div>
+                <h4 class="fw-bold mb-1">{{ user.get_full_name|default:user.username }}</h4>
+                <p class="text-muted small mb-2">@{{ user.username }} &bull; {{ user.email }}</p>
+                <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill mb-3">
+                    {{ user.profile.get_role_display }}
+                </span>
+
+                <div class="border-top pt-3 text-start small">
+                    <div class="d-flex justify-content-between py-1">
+                        <span class="text-muted">Target Career:</span>
+                        <span class="fw-semibold">{{ user.profile.target_job_title|default:'Not set' }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between py-1">
+                        <span class="text-muted">Experience Level:</span>
+                        <span class="fw-semibold">{{ user.profile.get_experience_level_display }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between py-1">
+                        <span class="text-muted">Resumes Evaluated:</span>
+                        <span class="badge bg-success rounded-pill">{{ resumes_count }}</span>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <a href="{% url 'upload_resume' %}" class="btn btn-primary-custom w-100 mb-2">
+                        <i class="bi bi-cloud-arrow-up me-1"></i> Analyze New Resume
+                    </a>
+                    <a href="{% url 'resume_history' %}" class="btn btn-outline-custom w-100">
+                        <i class="bi bi-clock-history me-1"></i> View Saved Reports
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Edit Form -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 bg-white">
+                <div class="d-flex align-items-center gap-2 mb-4 border-bottom pb-3">
+                    <i class="bi bi-person-gear fs-4 text-primary"></i>
+                    <div>
+                        <h4 class="fw-bold mb-0">Profile Information & Preferences</h4>
+                        <p class="text-muted small mb-0">Update your career goals and personal details</p>
+                    </div>
+                </div>
+
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <h6 class="fw-bold text-muted text-uppercase small mb-3">Account Details</h6>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small">First Name</label>
+                            {{ u_form.first_name }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small">Last Name</label>
+                            {{ u_form.last_name }}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold small">Email Address</label>
+                            {{ u_form.email }}
+                        </div>
+                    </div>
+
+                    <h6 class="fw-bold text-muted text-uppercase small mb-3">Career Target & Preferences</h6>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small">Target Job Title</label>
+                            {{ p_form.target_job_title }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small">Experience Level</label>
+                            {{ p_form.experience_level }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold small">Phone Number</label>
+                            {{ p_form.phone_number }}
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold small">Bio & Career Objective</label>
+                            {{ p_form.bio }}
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary-custom px-4 py-2">
+                        <i class="bi bi-check2 me-1"></i> Save Profile Changes
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

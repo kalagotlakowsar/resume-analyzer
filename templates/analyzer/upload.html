@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+
+{% block title %}Upload Resume for AI Evaluation - AI Resume Analyzer{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Header Card -->
+            <div class="text-center mb-4">
+                <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill fw-semibold mb-2">
+                    <i class="bi bi-magic me-1"></i> NLP & Machine Learning Engine
+                </span>
+                <h2 class="fw-bold">Upload Your Resume for AI Analysis</h2>
+                <p class="text-muted">Select a target job role or paste a job description to get an instantaneous ATS score and skill gap audit.</p>
+            </div>
+
+            <!-- Upload Card -->
+            <div class="card border-0 shadow-lg rounded-4 p-4 p-md-5 bg-white position-relative">
+                
+                <!-- Loading Overlay -->
+                <div id="analyzeLoadingOverlay" class="d-none position-absolute top-0 start-0 w-100 h-100 bg-white bg-opacity-95 rounded-4 d-flex flex-column align-items-center justify-content-center" style="z-index: 1050;">
+                    <div class="spinner-border text-primary" style="width: 3.5rem; height: 3.5rem;" role="status">
+                        <span class="visually-hidden">Analyzing...</span>
+                    </div>
+                    <h5 class="fw-bold mt-4 mb-2 text-dark">Evaluating Resume with NLP & Machine Learning...</h5>
+                    <p class="text-muted small text-center max-w-400">Extracting skills, computing TF-IDF similarity, and generating tailored recommendations...</p>
+                </div>
+
+                <form id="resumeUploadForm" method="POST" enctype="multipart/form-data" novalidate>
+                    {% csrf_token %}
+
+                    <!-- Step 1: Resume File Upload -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold text-dark mb-2">
+                            <span class="badge bg-primary rounded-circle me-1">1</span> Upload Resume File (.PDF or .DOCX)
+                        </label>
+
+                        <div id="uploadDropzone" class="upload-dropzone">
+                            <div class="upload-icon-pulse">
+                                <i class="bi bi-cloud-arrow-up-fill"></i>
+                            </div>
+                            <h5 class="fw-bold mb-1">Drag and drop your resume here</h5>
+                            <p class="text-muted small mb-3">or <span class="text-primary fw-semibold">browse file from your device</span></p>
+                            <span class="badge bg-light text-secondary border px-3 py-2">
+                                <i class="bi bi-info-circle me-1"></i> Supports PDF & DOCX up to 5 MB
+                            </span>
+                            <div class="d-none">
+                                {{ form.file }}
+                            </div>
+                        </div>
+
+                        <!-- Selected File Info Feedback -->
+                        <div id="selectedFileInfo" class="d-none mt-3 p-3 bg-light rounded-3 border d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="bi bi-file-earmark-check-fill text-success fs-4"></i>
+                                <div>
+                                    <h6 class="mb-0 fw-bold" id="selectedFileName">resume.pdf</h6>
+                                    <span class="text-muted small" id="selectedFileSize">120 KB</span>
+                                </div>
+                            </div>
+                            <span class="badge bg-success text-white">Ready for Scan</span>
+                        </div>
+
+                        {% if form.file.errors %}
+                            <div class="text-danger small mt-2">{{ form.file.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Optional Resume Title -->
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold small text-muted">Resume Title / Label (Optional)</label>
+                        {{ form.title }}
+                    </div>
+
+                    <!-- Step 2: Target Role / Custom JD Match -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold text-dark mb-2">
+                            <span class="badge bg-primary rounded-circle me-1">2</span> Choose Evaluation Mode
+                        </label>
+
+                        <ul class="nav nav-pills nav-fill mb-3" id="pills-tab" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active fw-semibold" id="pills-preset-tab" data-bs-toggle="pill" data-bs-target="#pills-preset" type="button" role="tab">
+                                    <i class="bi bi-list-stars me-1"></i> Select Target Job Role
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link fw-semibold" id="pills-custom-tab" data-bs-toggle="pill" data-bs-target="#pills-custom" type="button" role="tab">
+                                    <i class="bi bi-file-earmark-text me-1"></i> Paste Custom Job Description
+                                </button>
+                            </li>
+                        </ul>
+
+                        <div class="tab-content" id="pills-tabContent">
+                            <!-- Preset Role Tab -->
+                            <div class="tab-pane fade show active" id="pills-preset" role="tabpanel">
+                                <div class="mb-3">
+                                    {{ form.job_role }}
+                                    <div class="form-text">Choose from 20+ pre-calibrated industry roles with indexed keyword benchmarks.</div>
+                                </div>
+
+                                <!-- AJAX Role Skill Preview Box -->
+                                <div id="rolePreviewContainer" class="p-3 bg-light rounded-3 border d-none">
+                                    <h6 class="fw-bold mb-2 text-primary" id="rolePreviewTitle">Role Preview</h6>
+                                    <div class="small text-muted mb-2">Key tracked skills for this role:</div>
+                                    <div id="rolePreviewSkills" class="d-flex flex-wrap gap-1"></div>
+                                </div>
+                            </div>
+
+                            <!-- Custom JD Tab -->
+                            <div class="tab-pane fade" id="pills-custom" role="tabpanel">
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold small">Custom Role Title</label>
+                                    {{ form.custom_role_title }}
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold small">Paste Target Job Description (JD)</label>
+                                    {{ form.custom_job_description }}
+                                    <div class="form-text">The AI engine will extract requirements directly from the pasted text and run real-time similarity matching.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" id="btnSubmitAnalyze" class="btn btn-primary-custom w-100 py-3 fs-6">
+                        <i class="bi bi-cpu me-2"></i> Run AI Resume Evaluation
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

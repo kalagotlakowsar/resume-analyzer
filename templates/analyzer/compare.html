@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+
+{% block title %}Compare Resume Iterations - AI Resume Analyzer{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+        <div>
+            <h3 class="fw-bold mb-1">Resume Iteration Comparison</h3>
+            <p class="text-muted small mb-0">Evaluate before and after versions of your resume to verify ATS score improvements.</p>
+        </div>
+        <a href="{% url 'upload_resume' %}" class="btn btn-primary-custom">
+            <i class="bi bi-cloud-arrow-up me-1"></i> Upload New Version
+        </a>
+    </div>
+
+    <!-- Selectors Card -->
+    <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+        <form method="GET" class="row g-3 align-items-end">
+            <div class="col-md-5">
+                <label class="form-label fw-semibold small">Select Version 1 (Baseline)</label>
+                <select name="r1" class="form-select" onchange="this.form.submit()">
+                    {% for rep in all_reports %}
+                        <option value="{{ rep.id }}" {% if r1.id == rep.id %}selected{% endif %}>
+                            {{ rep.resume.title }} ({{ rep.target_title }}) - {{ rep.ats_score }}% [{{ rep.created_at|date:"M d, Y" }}]
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-5">
+                <label class="form-label fw-semibold small">Select Version 2 (Revised)</label>
+                <select name="r2" class="form-select" onchange="this.form.submit()">
+                    {% for rep in all_reports %}
+                        <option value="{{ rep.id }}" {% if r2.id == rep.id %}selected{% endif %}>
+                            {{ rep.resume.title }} ({{ rep.target_title }}) - {{ rep.ats_score }}% [{{ rep.created_at|date:"M d, Y" }}]
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary-custom w-100">
+                    <i class="bi bi-arrow-repeat"></i> Compare
+                </button>
+            </div>
+        </form>
+    </div>
+
+    {% if r1 and r2 %}
+        <!-- Comparison Summary Grid -->
+        <div class="row g-4 mb-4">
+            <!-- Version 1 Card -->
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100 border-top border-4 border-secondary">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="badge bg-secondary">Version 1 (Baseline)</span>
+                        <span class="text-muted small">{{ r1.created_at|date:"M d, Y H:i" }}</span>
+                    </div>
+                    <h5 class="fw-bold mb-1">{{ r1.resume.title }}</h5>
+                    <p class="text-muted small mb-3">Target: <strong>{{ r1.target_title }}</strong></p>
+
+                    <div class="p-3 bg-light rounded-3 text-center mb-3">
+                        <span class="small text-muted d-block">Overall ATS Score</span>
+                        <h2 class="fw-bold text-dark mb-0">{{ r1.ats_score }}%</h2>
+                    </div>
+
+                    <div class="mb-3 small">
+                        <div class="d-flex justify-content-between py-1 border-bottom">
+                            <span class="text-muted">Keywords Match:</span>
+                            <span class="fw-bold">{{ r1.keyword_match_score }}%</span>
+                        </div>
+                        <div class="d-flex justify-content-between py-1 border-bottom">
+                            <span class="text-muted">Skills Match:</span>
+                            <span class="fw-bold">{{ r1.skills_score }}%</span>
+                        </div>
+                        <div class="d-flex justify-content-between py-1 border-bottom">
+                            <span class="text-muted">Experience Impact:</span>
+                            <span class="fw-bold">{{ r1.experience_score }}%</span>
+                        </div>
+                        <div class="d-flex justify-content-between py-1 border-bottom">
+                            <span class="text-muted">Formatting Quality:</span>
+                            <span class="fw-bold">{{ r1.formatting_score }}%</span>
+                        </div>
+                        <div class="d-flex justify-content-between py-1">
+                            <span class="text-muted">Matched Skills Count:</span>
+                            <span class="badge bg-success rounded-pill">{{ r1.matched_skills|length }}</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h6 class="fw-bold small text-muted text-uppercase mb-2">Matched Skills:</h6>
+                        <div class="d-flex flex-wrap gap-1">
+                            {% for s in r1.matched_skills %}
+                                <span class="skill-pill skill-matched">{{ s }}</span>
+                            {% empty %}
+                                <span class="text-muted small">None.</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Version 2 Card -->
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100 border-top border-4 border-primary">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="badge bg-primary">Version 2 (Revised)</span>
+                        <span class="text-muted small">{{ r2.created_at|date:"M d, Y H:i" }}</span>
+                    </div>
+                    <h5 class="fw-bold mb-1">{{ r2.resume.title }}</h5>
+                    <p class="text-muted small mb-3">Target: <strong>{{ r2.target_title }}</strong></p>
+
+                    <div class="p-3 bg-primary-subtle rounded-3 text-center mb-3">
+                        <span class="small text-primary fw-semibold d-block">Overall ATS Score</span>
+                        <h2 class="fw-bold text-primary mb-0">{{ r2.ats_score }}%</h2>
+                    </div>
+
+                    <div class="mb-3 small">
+                        <div class="d-flex justify-content-between py-1 border-bottom">
+                            <span class="text-muted">Keywords Match:</span>
+                            <span class="fw-bold">{{ r2.keyword_match_score }}%</span>
+                        </div>
+                        <div class="d-flex justify-content-between py-1 border-bottom">
+                            <span class="text-muted">Skills Match:</span>
+                            <span class="fw-bold">{{ r2.skills_score }}%</span>
+                        </div>
+                        <div class="d-flex justify-content-between py-1 border-bottom">
+                            <span class="text-muted">Experience Impact:</span>
+                            <span class="fw-bold">{{ r2.experience_score }}%</span>
+                        </div>
+                        <div class="d-flex justify-content-between py-1 border-bottom">
+                            <span class="text-muted">Formatting Quality:</span>
+                            <span class="fw-bold">{{ r2.formatting_score }}%</span>
+                        </div>
+                        <div class="d-flex justify-content-between py-1">
+                            <span class="text-muted">Matched Skills Count:</span>
+                            <span class="badge bg-success rounded-pill">{{ r2.matched_skills|length }}</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h6 class="fw-bold small text-muted text-uppercase mb-2">Matched Skills:</h6>
+                        <div class="d-flex flex-wrap gap-1">
+                            {% for s in r2.matched_skills %}
+                                <span class="skill-pill skill-matched">{{ s }}</span>
+                            {% empty %}
+                                <span class="text-muted small">None.</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    {% else %}
+        <div class="card border-0 shadow-sm rounded-4 p-5 bg-white text-center">
+            <h5 class="fw-bold">Please select or upload at least two resumes to compare.</h5>
+            <p class="text-muted small">Upload another version of your resume to track your ATS improvement.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

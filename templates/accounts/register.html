@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Free Account - AI Resume Analyzer{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card border-0 shadow-lg rounded-4 p-4 p-md-5 bg-white">
+                <div class="text-center mb-4">
+                    <span class="p-3 rounded-4 bg-primary-subtle text-primary d-inline-flex mb-3">
+                        <i class="bi bi-person-plus-fill fs-2"></i>
+                    </span>
+                    <h3 class="fw-bold mb-1">Create Your Account</h3>
+                    <p class="text-muted small">Join thousands of students and job seekers optimizing their careers</p>
+                </div>
+
+                <form method="POST" novalidate>
+                    {% csrf_token %}
+                    
+                    <div class="row g-3 mb-3">
+                        <div class="col-sm-6">
+                            <label class="form-label fw-semibold small">First Name</label>
+                            {{ form.first_name }}
+                            {% if form.first_name.errors %}
+                                <div class="text-danger small mt-1">{{ form.first_name.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-6">
+                            <label class="form-label fw-semibold small">Last Name</label>
+                            {{ form.last_name }}
+                            {% if form.last_name.errors %}
+                                <div class="text-danger small mt-1">{{ form.last_name.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small">Username</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0">@</span>
+                            {{ form.username }}
+                        </div>
+                        {% if form.username.errors %}
+                            <div class="text-danger small mt-1">{{ form.username.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small">Email Address</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0"><i class="bi bi-envelope text-muted"></i></span>
+                            {{ form.email }}
+                        </div>
+                        {% if form.email.errors %}
+                            <div class="text-danger small mt-1">{{ form.email.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small">I am a:</label>
+                        {{ form.role }}
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-sm-6">
+                            <label class="form-label fw-semibold small">Password</label>
+                            {{ form.password }}
+                            {% if form.password.errors %}
+                                <div class="text-danger small mt-1">{{ form.password.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-sm-6">
+                            <label class="form-label fw-semibold small">Confirm Password</label>
+                            {{ form.confirm_password }}
+                            {% if form.confirm_password.errors %}
+                                <div class="text-danger small mt-1">{{ form.confirm_password.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary-custom w-100 py-2 fs-6 mb-3">
+                        <i class="bi bi-check2-circle me-1"></i> Register & Start Analyzing
+                    </button>
+
+                    <div class="text-center">
+                        <span class="text-muted small">Already have an account?</span>
+                        <a href="{% url 'login' %}" class="fw-bold text-primary text-decoration-none small ms-1">Sign In</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

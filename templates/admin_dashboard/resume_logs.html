@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block title %}Resume Scans Audit Log - Admin Portal{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4 pb-3 border-bottom">
+        <div>
+            <h3 class="fw-bold mb-1"><i class="bi bi-journal-text text-primary me-2"></i>Resume Analysis Logs & Repository</h3>
+            <p class="text-muted small mb-0">Complete audit trail of all uploaded resumes, target roles, and algorithmic ATS scores.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'export_resumes_csv' %}" class="btn btn-success">
+                <i class="bi bi-filetype-csv me-1"></i> Download CSV Export
+            </a>
+            <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-custom">
+                <i class="bi bi-arrow-left me-1"></i> Dashboard
+            </a>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4 bg-white overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0 small">
+                <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Candidate</th>
+                        <th>Resume File</th>
+                        <th>Target Role</th>
+                        <th>ATS Score</th>
+                        <th>Keywords</th>
+                        <th>Skills</th>
+                        <th>Experience</th>
+                        <th>Date & Time</th>
+                        <th class="text-end">Report</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in reports %}
+                        <tr>
+                            <td>#{{ r.id }}</td>
+                            <td>
+                                <strong>{{ r.resume.user.username|default:"Guest" }}</strong>
+                                <span class="d-block text-muted">{{ r.resume.user.email }}</span>
+                            </td>
+                            <td>
+                                <span class="d-block text-dark fw-semibold">{{ r.resume.file_name }}</span>
+                                <span class="text-muted">{{ r.resume.file_size_kb }} KB &bull; {{ r.resume.page_count }} pg</span>
+                            </td>
+                            <td>
+                                <span class="fw-semibold">{{ r.target_title }}</span>
+                            </td>
+                            <td>
+                                <span class="badge {{ r.rating_badge_class }} rounded-pill">
+                                    {{ r.ats_score }}%
+                                </span>
+                            </td>
+                            <td>{{ r.keyword_match_score }}%</td>
+                            <td>{{ r.skills_score }}%</td>
+                            <td>{{ r.experience_score }}%</td>
+                            <td class="text-muted">{{ r.created_at|date:"Y-m-d H:i" }}</td>
+                            <td class="text-end">
+                                <a href="{% url 'view_report' r.id %}" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-eye"></i> View
+                                </a>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="10" class="text-center text-muted py-4">No analysis records logged yet.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

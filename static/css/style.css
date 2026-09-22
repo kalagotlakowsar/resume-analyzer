@@ -1,0 +1,245 @@
+/* ===================================================================
+   AI Resume Analyzer - Main Modern Stylesheet
+   =================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap');
+
+:root {
+    --primary-color: #4f46e5;
+    --primary-hover: #4338ca;
+    --primary-light: #eef2ff;
+    --secondary-color: #06b6d4;
+    --accent-color: #f59e0b;
+    --success-color: #10b981;
+    --danger-color: #ef4444;
+    --warning-color: #f59e0b;
+    --dark-bg: #0f172a;
+    --card-bg: #ffffff;
+    --text-primary: #1e293b;
+    --text-muted: #64748b;
+    --border-color: #e2e8f0;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.05);
+    --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.04);
+}
+
+body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: var(--text-primary);
+    background-color: #f8fafc;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+h1, h2, h3, h4, h5, h6, .brand-font {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+/* Navbar */
+.navbar-custom {
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+}
+
+.navbar-brand {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: var(--primary-color) !important;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.nav-link {
+    font-weight: 500;
+    color: #475569 !important;
+    transition: color 0.2s;
+    padding: 0.5rem 0.9rem !important;
+}
+
+.nav-link:hover, .nav-link.active {
+    color: var(--primary-color) !important;
+}
+
+/* Buttons */
+.btn-primary-custom {
+    background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
+    color: #fff;
+    border: none;
+    font-weight: 600;
+    padding: 0.65rem 1.4rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 14px 0 rgba(79, 70, 229, 0.35);
+    transition: all 0.25s ease;
+}
+
+.btn-primary-custom:hover {
+    background: linear-gradient(135deg, #4338ca 0%, #2563eb 100%);
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px 0 rgba(79, 70, 229, 0.45);
+}
+
+.btn-outline-custom {
+    border: 1.5px solid #cbd5e1;
+    color: #334155;
+    font-weight: 600;
+    padding: 0.6rem 1.3rem;
+    border-radius: 8px;
+    background: #fff;
+    transition: all 0.2s;
+}
+
+.btn-outline-custom:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    background: var(--primary-light);
+}
+
+/* Hero Section */
+.hero-gradient {
+    background: radial-gradient(circle at 50% -20%, #e0e7ff 0%, #f8fafc 65%);
+    padding: 5rem 0 4rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-badge {
+    background: #eef2ff;
+    color: #4f46e5;
+    font-weight: 600;
+    font-size: 0.85rem;
+    padding: 0.35rem 0.85rem;
+    border-radius: 50px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid #c7d2fe;
+}
+
+/* Cards */
+.feature-card {
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 2rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    height: 100%;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+    border-color: #cbd5e1;
+}
+
+.icon-box {
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-bottom: 1.25rem;
+}
+
+.icon-box.primary { background: #eef2ff; color: #4f46e5; }
+.icon-box.cyan { background: #ecfeff; color: #0891b2; }
+.icon-box.emerald { background: #ecfdf5; color: #059669; }
+.icon-box.amber { background: #fffbeb; color: #d97706; }
+
+/* Upload Drag & Drop Zone */
+.upload-dropzone {
+    border: 2px dashed #cbd5e1;
+    border-radius: 16px;
+    padding: 3.5rem 2rem;
+    text-align: center;
+    background: #ffffff;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.upload-dropzone:hover, .upload-dropzone.dragover {
+    border-color: var(--primary-color);
+    background: #f5f7ff;
+}
+
+.upload-icon-pulse {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: #eef2ff;
+    color: var(--primary-color);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Footer */
+footer {
+    margin-top: auto;
+    background: #0f172a;
+    color: #94a3b8;
+    padding: 3.5rem 0 2rem;
+    border-top: 1px solid #1e293b;
+}
+
+footer a {
+    color: #cbd5e1;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+footer a:hover {
+    color: #ffffff;
+}
+
+/* Badges & Pills */
+.skill-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0.4rem 0.85rem;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin: 3px;
+    transition: transform 0.15s ease;
+}
+
+.skill-pill:hover {
+    transform: scale(1.04);
+}
+
+.skill-matched {
+    background-color: #dcfce7;
+    color: #15803d;
+    border: 1px solid #bbf7d0;
+}
+
+.skill-missing {
+    background-color: #fee2e2;
+    color: #b91c1c;
+    border: 1px solid #fecaca;
+}
+
+.skill-recommended {
+    background-color: #e0f2fe;
+    color: #0369a1;
+    border: 1px solid #bae6fd;
+}
+
+.skill-neutral {
+    background-color: #f1f5f9;
+    color: #475569;
+    border: 1px solid #e2e8f0;
+}

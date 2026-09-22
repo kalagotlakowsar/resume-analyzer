@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+
+{% block title %}My Uploaded Resumes - AI Resume Analyzer{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+        <div>
+            <h3 class="fw-bold mb-1">My Analyzed Resumes</h3>
+            <p class="text-muted small mb-0">Track your past uploads, ATS score progressions, and audit histories.</p>
+        </div>
+        <div>
+            <a href="{% url 'upload_resume' %}" class="btn btn-primary-custom">
+                <i class="bi bi-cloud-arrow-up me-1"></i> Upload New Resume
+            </a>
+            <a href="{% url 'compare_resumes' %}" class="btn btn-outline-custom ms-2">
+                <i class="bi bi-arrow-left-right me-1"></i> Compare Iterations
+            </a>
+        </div>
+    </div>
+
+    {% if page_obj.object_list %}
+        <div class="card border-0 shadow-sm rounded-4 bg-white overflow-hidden">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Resume Title / File</th>
+                            <th>Target Role</th>
+                            <th>ATS Score</th>
+                            <th>Page / Size</th>
+                            <th>Uploaded On</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for resume in page_obj %}
+                            {% with latest_report=resume.reports.first %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="p-2 rounded bg-primary-subtle text-primary fs-4">
+                                            {% if resume.file_type == '.pdf' %}
+                                                <i class="bi bi-file-earmark-pdf"></i>
+                                            {% else %}
+                                                <i class="bi bi-file-earmark-word"></i>
+                                            {% endif %}
+                                        </div>
+                                        <div>
+                                            <h6 class="fw-bold mb-0 text-dark">{{ resume.title }}</h6>
+                                            <span class="text-muted small">{{ resume.file_name }}</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    {% if latest_report %}
+                                        <span class="fw-semibold">{{ latest_report.target_title }}</span>
+                                    {% else %}
+                                        <span class="text-muted">General</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if latest_report %}
+                                        <span class="badge {{ latest_report.rating_badge_class }} px-3 py-2 rounded-pill fs-6">
+                                            {{ latest_report.ats_score }}%
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Pending</span>
+                                    {% endif %}
+                                </td>
+                                <td class="small text-muted">
+                                    {{ resume.page_count }} pg &bull; {{ resume.file_size_kb }} KB
+                                </td>
+                                <td class="small text-muted">
+                                    {{ resume.uploaded_at|date:"M d, Y H:i" }}
+                                </td>
+                                <td class="text-end">
+                                    {% if latest_report %}
+                                        <a href="{% url 'view_report' latest_report.id %}" class="btn btn-sm btn-outline-primary me-1">
+                                            <i class="bi bi-eye"></i> View Report
+                                        </a>
+                                    {% endif %}
+                                    <form method="POST" action="{% url 'delete_resume' resume.id %}" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this resume and its reports?');">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endwith %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+            <nav class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a></li>
+                    {% endif %}
+                    {% for num in page_obj.paginator.page_range %}
+                        <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                        </li>
+                    {% endfor %}
+                    {% if page_obj.has_next %}
+                        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+        {% endif %}
+
+    {% else %}
+        <div class="card border-0 shadow-sm rounded-4 p-5 bg-white text-center">
+            <div class="mb-3">
+                <i class="bi bi-file-earmark-x text-muted" style="font-size: 3.5rem;"></i>
+            </div>
+            <h5 class="fw-bold">No Resumes Uploaded Yet</h5>
+            <p class="text-muted small mb-4">Upload your first resume in PDF or DOCX format to receive an AI analysis.</p>
+            <div>
+                <a href="{% url 'upload_resume' %}" class="btn btn-primary-custom">
+                    <i class="bi bi-cloud-arrow-up me-1"></i> Upload Resume Now
+                </a>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

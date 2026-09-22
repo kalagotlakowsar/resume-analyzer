@@ -1,0 +1,235 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Admin Portal & Analytics - AI Resume Analyzer{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Admin Navigation Header -->
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4 pb-3 border-bottom">
+        <div>
+            <h3 class="fw-bold mb-1"><i class="bi bi-speedometer2 text-primary me-2"></i>Platform Admin & Analytics Portal</h3>
+            <p class="text-muted small mb-0">Monitor user activities, analyze platform-wide skill gaps, and manage the skills taxonomy.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'manage_roles' %}" class="btn btn-outline-custom">
+                <i class="bi bi-briefcase me-1"></i> Manage Roles
+            </a>
+            <a href="{% url 'manage_skills' %}" class="btn btn-outline-custom">
+                <i class="bi bi-tags me-1"></i> Manage Skills
+            </a>
+            <a href="{% url 'manage_users' %}" class="btn btn-outline-custom">
+                <i class="bi bi-people me-1"></i> User Accounts
+            </a>
+            <a href="{% url 'export_resumes_csv' %}" class="btn btn-primary-custom">
+                <i class="bi bi-filetype-csv me-1"></i> Export Full CSV
+            </a>
+        </div>
+    </div>
+
+    <!-- Overview KPI Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-lg-3">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="text-muted small fw-semibold">Total Users</span>
+                    <span class="p-2 rounded bg-primary-subtle text-primary"><i class="bi bi-people-fill"></i></span>
+                </div>
+                <h3 class="fw-bold text-dark mb-0">{{ total_users }}</h3>
+                <span class="text-muted small">Registered Students/Seekers</span>
+            </div>
+        </div>
+
+        <div class="col-6 col-lg-3">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="text-muted small fw-semibold">Total Resumes Scanned</span>
+                    <span class="p-2 rounded bg-success-subtle text-success"><i class="bi bi-file-earmark-check-fill"></i></span>
+                </div>
+                <h3 class="fw-bold text-dark mb-0">{{ total_resumes }}</h3>
+                <span class="text-muted small">{{ total_reports }} Total Audit Reports</span>
+            </div>
+        </div>
+
+        <div class="col-6 col-lg-3">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="text-muted small fw-semibold">Platform Avg ATS Score</span>
+                    <span class="p-2 rounded bg-info-subtle text-info"><i class="bi bi-graph-up-arrow"></i></span>
+                </div>
+                <h3 class="fw-bold text-primary mb-0">{{ avg_ats }}%</h3>
+                <span class="text-muted small">Mean Candidate Match</span>
+            </div>
+        </div>
+
+        <div class="col-6 col-lg-3">
+            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="text-muted small fw-semibold">High Match Resumes (85%+)</span>
+                    <span class="p-2 rounded bg-warning-subtle text-warning"><i class="bi bi-trophy-fill"></i></span>
+                </div>
+                <h3 class="fw-bold text-success mb-0">{{ excellent_count }}</h3>
+                <span class="text-muted small">{{ good_count }} in 70-84% range</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row g-4 mb-4">
+        <!-- ATS Score Distribution Chart -->
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold mb-0">ATS Score Distribution</h5>
+                    <span class="badge bg-light text-muted border">Platform Wide</span>
+                </div>
+                <div style="height: 280px; position: relative;">
+                    <canvas id="adminScoreDistChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Missing Skills Chart -->
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold mb-0">Top Missing Skills Across Candidates</h5>
+                    <span class="badge bg-danger-subtle text-danger">Curriculum Gaps</span>
+                </div>
+                <div style="height: 280px; position: relative;">
+                    <canvas id="adminMissingSkillsChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Lists: Top Roles and Recent Audits -->
+    <div class="row g-4 mb-4">
+        <!-- Top Roles -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+                <h5 class="fw-bold mb-3"><i class="bi bi-briefcase text-primary me-2"></i>Most Targeted Roles</h5>
+                <ul class="list-group list-group-flush small">
+                    {% for r in top_roles %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2">
+                            <span>{{ r.title }}</span>
+                            <span class="badge bg-primary rounded-pill">{{ r.report_count }} scans</span>
+                        </li>
+                    {% empty %}
+                        <li class="list-group-item px-0 text-muted">No role scans recorded yet.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <!-- Recent Candidate Reports -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold mb-0"><i class="bi bi-clock-history text-primary me-2"></i>Recent Resume Audits</h5>
+                    <a href="{% url 'resume_logs' %}" class="small text-primary text-decoration-none">View All Logs &rarr;</a>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0 small">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Candidate</th>
+                                <th>File / Role</th>
+                                <th>Score</th>
+                                <th>Date</th>
+                                <th class="text-end">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for rep in recent_reports %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ rep.resume.user.username|default:"Guest" }}</strong>
+                                        <span class="d-block text-muted">{{ rep.resume.user.email }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="d-block text-dark fw-semibold">{{ rep.target_title }}</span>
+                                        <span class="text-muted">{{ rep.resume.file_name }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge {{ rep.rating_badge_class }} rounded-pill">
+                                            {{ rep.ats_score }}%
+                                        </span>
+                                    </td>
+                                    <td class="text-muted">{{ rep.created_at|date:"M d, H:i" }}</td>
+                                    <td class="text-end">
+                                        <a href="{% url 'view_report' rep.id %}" class="btn btn-sm btn-outline-primary">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted py-3">No recent reports available.</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const scoreDist = {{ score_dist_json|safe }};
+        const missingSkills = {{ missing_skills_json|safe }};
+
+        // Score Distribution Bar Chart
+        const scoreCtx = document.getElementById('adminScoreDistChart');
+        if (scoreCtx) {
+            new Chart(scoreCtx, {
+                type: 'bar',
+                data: {
+                    labels: scoreDist.labels,
+                    datasets: [{
+                        label: 'Resumes Count',
+                        data: scoreDist.values,
+                        backgroundColor: ['#ef4444', '#f59e0b', '#3b82f6', '#10b981'],
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+                }
+            });
+        }
+
+        // Missing Skills Horizontal Bar Chart
+        const missingCtx = document.getElementById('adminMissingSkillsChart');
+        if (missingCtx) {
+            new Chart(missingCtx, {
+                type: 'bar',
+                data: {
+                    labels: missingSkills.labels,
+                    datasets: [{
+                        label: 'Missing Count',
+                        data: missingSkills.values,
+                        backgroundColor: '#ef4444',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } } }
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

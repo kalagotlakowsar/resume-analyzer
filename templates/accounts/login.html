@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block title %}Sign In - AI Resume Analyzer{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card border-0 shadow-lg rounded-4 p-4 p-md-5 bg-white">
+                <div class="text-center mb-4">
+                    <span class="p-3 rounded-4 bg-primary-subtle text-primary d-inline-flex mb-3">
+                        <i class="bi bi-box-arrow-in-right fs-2"></i>
+                    </span>
+                    <h3 class="fw-bold mb-1">Welcome Back</h3>
+                    <p class="text-muted small">Sign in to evaluate your resume and optimize your ATS score</p>
+                </div>
+
+                <form method="POST" novalidate>
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small">Username or Email</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0"><i class="bi bi-person text-muted"></i></span>
+                            {{ form.username }}
+                        </div>
+                        {% if form.username.errors %}
+                            <div class="text-danger small mt-1">{{ form.username.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between">
+                            <label class="form-label fw-semibold small">Password</label>
+                        </div>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0"><i class="bi bi-lock text-muted"></i></span>
+                            {{ form.password }}
+                        </div>
+                        {% if form.password.errors %}
+                            <div class="text-danger small mt-1">{{ form.password.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <button type="submit" class="btn btn-primary-custom w-100 py-2 fs-6 mb-3">
+                        <i class="bi bi-arrow-right-circle me-1"></i> Sign In to Account
+                    </button>
+
+                    <div class="text-center">
+                        <span class="text-muted small">Don't have an account yet?</span>
+                        <a href="{% url 'register' %}" class="fw-bold text-primary text-decoration-none small ms-1">Create Free Account</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

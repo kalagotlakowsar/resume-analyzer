@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block title %}Skills Taxonomy - Admin Portal{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4 pb-3 border-bottom">
+        <div>
+            <h3 class="fw-bold mb-1"><i class="bi bi-tags text-primary me-2"></i>Skills Taxonomy Database</h3>
+            <p class="text-muted small mb-0">Maintain categorized technical and soft skills recognized by the NLP parser.</p>
+        </div>
+        <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-custom">
+            <i class="bi bi-arrow-left me-1"></i> Dashboard
+        </a>
+    </div>
+
+    <div class="row g-4">
+        <!-- Add Skill Card -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white sticky-top" style="top: 80px;">
+                <h5 class="fw-bold mb-3"><i class="bi bi-plus-circle text-primary me-2"></i>Add New Skill</h5>
+                
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small">Skill Name</label>
+                        {{ form.name }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small">Category</label>
+                        {{ form.category }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small">Aliases / Synonyms</label>
+                        {{ form.synonyms }}
+                        <div class="form-text">Comma-separated alternative names for regex matcher.</div>
+                    </div>
+                    <div class="mb-4 form-check">
+                        {{ form.is_trending }}
+                        <label class="form-check-label small" for="{{ form.is_trending.id_for_label }}">
+                            Mark as High In-Demand / Trending
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary-custom w-100 py-2">
+                        <i class="bi bi-plus-lg me-1"></i> Add Skill to Taxonomy
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Skills List by Category -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+                <h5 class="fw-bold mb-4">Recognized Skills by Category</h5>
+
+                {% for cat in categories %}
+                    <div class="mb-4 pb-3 border-bottom">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <h6 class="fw-bold text-primary mb-0">
+                                <i class="bi {{ cat.icon }} me-1"></i> {{ cat.name }}
+                            </h6>
+                            <span class="badge bg-light text-muted border">{{ cat.skills.count }} skills</span>
+                        </div>
+                        <div class="d-flex flex-wrap gap-1">
+                            {% for s in cat.skills.all %}
+                                <span class="skill-pill skill-neutral position-relative pe-4">
+                                    {{ s.name }}
+                                    {% if s.is_trending %}
+                                        <i class="bi bi-fire text-danger" title="Trending Skill"></i>
+                                    {% endif %}
+                                    <form method="POST" action="{% url 'delete_skill' s.id %}" class="position-absolute end-0 top-50 translate-middle-y me-1" onsubmit="return confirm('Delete skill {{ s.name }}?');">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-link text-danger p-0 text-decoration-none" style="font-size: 0.75rem;">
+                                            <i class="bi bi-x"></i>
+                                        </button>
+                                    </form>
+                                </span>
+                            {% empty %}
+                                <span class="text-muted small">No skills in this category yet.</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
